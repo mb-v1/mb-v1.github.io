@@ -152,16 +152,18 @@
             white-space: pre;
             letter-spacing: -1px; /* Reduce spacing between characters */
         }
-        .history-row:nth-child(odd) {
-            background-color: #f4f4f4;
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            font-size: 14px;
         }
-        .history-row:nth-child(even) {
-            background-color: #e0e0e0;
-        }
-        .history-row {
-            padding: 5px;
+        .grid-item {
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
             text-align: center;
-            font-size: 16px;
         }
     </style>
 </head>
@@ -198,7 +200,7 @@
         </label>
     </div>
     <div id="info">
-        <div id="cpm-history"></div>
+        <div class="grid-container" id="cpm-history">CPM History:</div>
     </div>
     <div id="progress-container">
         <div id="progress-bar"></div>
@@ -346,10 +348,10 @@
 
         function updateCpmHistory() {
             const cpmHistoryDiv = document.getElementById('cpm-history');
-            cpmHistoryDiv.innerHTML = '';
+            cpmHistoryDiv.innerHTML = '<div class="grid-item">CPM History:</div>';
             cpmHistory.forEach(cpm => {
                 const cpmItem = document.createElement('div');
-                cpmItem.className = 'history-row';
+                cpmItem.className = 'grid-item';
                 cpmItem.innerText = cpm;
                 cpmHistoryDiv.appendChild(cpmItem);
             });

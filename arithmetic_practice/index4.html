@@ -57,33 +57,8 @@
         #info div {
             margin-bottom: 10px;
         }
-        #progress-container {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            max-width: 600px;
-            height: 30px;
-            background-color: #ddd;
-            border-radius: 15px;
-            overflow: hidden;
-        }
-        #progress-bar {
-            height: 100%;
-            width: 100%;
-            background-color: #4caf50;
-            border-radius: 15px;
-            transition: width 1s linear;
-        }
-        #cpm-display {
-            position: absolute;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 24px;
+        #timer span {
             font-weight: bold;
-            color: #333;
         }
         #question-area {
             text-align: center;
@@ -152,17 +127,6 @@
             white-space: pre;
             letter-spacing: -1px; /* Reduce spacing between characters */
         }
-        .history-row:nth-child(odd) {
-            background-color: #f4f4f4;
-        }
-        .history-row:nth-child(even) {
-            background-color: #e0e0e0;
-        }
-        .history-row {
-            padding: 5px;
-            text-align: center;
-            font-size: 16px;
-        }
     </style>
 </head>
 <body>
@@ -198,12 +162,11 @@
         </label>
     </div>
     <div id="info">
-        <div id="cpm-history"></div>
+        <div id="score">Score: 0</div>
+        <div id="timer">Time: <span>60s</span></div>
+        <div id="cpm">CPM: 0</div>
+        <div id="cpm-history">CPM History:</div>
     </div>
-    <div id="progress-container">
-        <div id="progress-bar"></div>
-    </div>
-    <div id="cpm-display">CPM: 0</div>
     <div id="question-area">
         <input type="number" id="answer" onkeydown="restartOnEnter(event)" oninput="checkAnswer()">
         <div id="question" class="question"></div>
@@ -289,6 +252,7 @@
                 document.getElementById('question').innerText = upcomingQuestions[0].question;
                 document.getElementById('answer').value = '';
                 updateUpcomingQuestions();
+                document.getElementById('score').innerText = `Score: ${score}`;
                 if (!timerStarted) {
                     startTimer();
                 }
@@ -311,31 +275,20 @@
             score = 0;
             total = 0;
             const timeLimit = parseInt(document.getElementById('timeSelect').value);
-            document.getElementById('cpm-display').innerText = `CPM: 0`;
+            document.getElementById('score').innerText = `Score: ${score}`;
+            document.getElementById('timer').innerHTML = `Time: <span>${timeLimit}s</span>`;
+            document.getElementById('cpm').innerText = `CPM: 0`;
             document.getElementById('question-area').classList.add('started');
-
-            const progressBar = document.getElementById('progress-bar');
-            progressBar.style.width = '100%';
-
-            const interval = timeLimit * 1000; // Total time in milliseconds
-            const decrement = 100 / timeLimit; // Percentage decrement per second
-
             timer = setInterval(() => {
-                const currentTime = parseInt(document.querySelector('#progress-bar').style.width.replace('%', ''));
+                const currentTime = parseInt(document.querySelector('#timer span').innerText.replace('s', ''));
                 if (currentTime > 0) {
-                    progressBar.style.width = `${currentTime - decrement}%`;
-                    let cpm = Math.floor((score / (timeLimit - (currentTime / decrement))) * 60);
-                    if (isNaN(cpm) || !isFinite(cpm)) {
-                        cpm = 0;
-                    }
-                    document.getElementById('cpm-display').innerText = `CPM: ${cpm}`;
+                    document.querySelector('#timer span').innerText = `${currentTime - 1}s`;
+                    const cpm = (score / (timeLimit - currentTime)) * 60;
+                    document.getElementById('cpm').innerText = `CPM: ${cpm.toFixed(2)}`;
                 } else {
                     clearInterval(timer);
-                    let cpm = Math.floor((score / timeLimit) * 60);
-                    if (isNaN(cpm) || !isFinite(cpm)) {
-                        cpm = 0;
-                    }
-                    cpmHistory.push(cpm);
+                    const cpm = (score / timeLimit) * 60;
+                    cpmHistory.push(cpm.toFixed(2));
                     updateCpmHistory();
                     setTimeout(() => {
                         initializePractice();
@@ -346,13 +299,7 @@
 
         function updateCpmHistory() {
             const cpmHistoryDiv = document.getElementById('cpm-history');
-            cpmHistoryDiv.innerHTML = '';
-            cpmHistory.forEach(cpm => {
-                const cpmItem = document.createElement('div');
-                cpmItem.className = 'history-row';
-                cpmItem.innerText = cpm;
-                cpmHistoryDiv.appendChild(cpmItem);
-            });
+            cpmHistoryDiv.innerHTML = 'CPM History:<br>' + cpmHistory.join('<br>');
         }
 
         function restartOnEnter(event) {
@@ -367,9 +314,10 @@
             timerStarted = false;
             document.getElementById('question-area').classList.remove('started');
             document.getElementById('answer').value = '';
-            document.getElementById('cpm-display').innerText = `CPM: 0`;
+            document.getElementById('score').innerText = 'Score: 0';
+            document.getElementById('timer').innerHTML = `Time: <span>${document.getElementById('timeSelect').value}s</span>`;
+            document.getElementById('cpm').innerText = `CPM: 0`;
             upcomingQuestions.length = 0;
-            document.getElementById('progress-bar').style.width = '100%';
             for (let i = 0; i < 4; i++) {
                 const nextQuestion = generateQuestion();
                 upcomingQuestions.push(nextQuestion);
