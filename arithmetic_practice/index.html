@@ -38,7 +38,7 @@
             border-radius: 5px;
             font-size: 14px;
         }
-        #controls input[type=checkbox] {
+        #controls input[type=checkbox], #controls input[type=button] {
             width: auto;
         }
         #info {
@@ -86,14 +86,26 @@
         }
         #answer::-webkit-outer-spin-button,
         #answer::-webkit-inner-spin-button,
-        #minRange::-webkit-outer-spin-button,
-        #minRange::-webkit-inner-spin-button,
-        #maxRange::-webkit-outer-spin-button,
-        #maxRange::-webkit-inner-spin-button {
+        #addMin::-webkit-outer-spin-button,
+        #addMin::-webkit-inner-spin-button,
+        #addMax::-webkit-outer-spin-button,
+        #addMax::-webkit-inner-spin-button,
+        #subMin::-webkit-outer-spin-button,
+        #subMin::-webkit-inner-spin-button,
+        #subMax::-webkit-outer-spin-button,
+        #subMax::-webkit-inner-spin-button,
+        #mulMin::-webkit-outer-spin-button,
+        #mulMin::-webkit-inner-spin-button,
+        #mulMax::-webkit-outer-spin-button,
+        #mulMax::-webkit-inner-spin-button,
+        #divMin::-webkit-outer-spin-button,
+        #divMin::-webkit-inner-spin-button,
+        #divMax::-webkit-outer-spin-button,
+        #divMax::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
-        #answer[type=number], #minRange[type=number], #maxRange[type=number] {
+        #answer[type=number], #addMin[type=number], #addMax[type=number], #subMin[type=number], #subMax[type=number], #mulMin[type=number], #mulMax[type=number], #divMin[type=number], #divMax[type=number] {
             -moz-appearance: textfield;
         }
         #upcoming-questions {
@@ -112,17 +124,12 @@
         }
         .question {
             white-space: pre;
-            letter-spacing: -6px; /* Reduce spacing between characters */
+            letter-spacing: -1px; /* Reduce spacing between characters */
         }
     </style>
 </head>
 <body>
     <div id="controls">
-        <label>Range:
-            <input type="number" id="minRange" placeholder="Min" value="2">
-            -
-            <input type="number" id="maxRange" placeholder="Max" value="9">
-        </label>
         <label>Time:
             <select id="timeSelect">
                 <option value="60">60s</option>
@@ -131,15 +138,30 @@
         </label>
         <label>
             <input type="checkbox" id="addition" checked>Addition
+            <br>
+            Min: <input type="number" id="addMin" value="2">
+            Max: <input type="number" id="addMax" value="9">
         </label>
         <label>
             <input type="checkbox" id="subtraction">Subtraction
+            <br>
+            Min: <input type="number" id="subMin" value="2">
+            Max: <input type="number" id="subMax" value="9">
         </label>
         <label>
             <input type="checkbox" id="multiplication" checked>Multiplication
+            <br>
+            Min: <input type="number" id="mulMin" value="2">
+            Max: <input type="number" id="mulMax" value="9">
         </label>
         <label>
             <input type="checkbox" id="division">Division
+            <br>
+            Min: <input type="number" id="divMin" value="2">
+            Max: <input type="number" id="divMax" value="9">
+        </label>
+        <label>
+            <input type="button" id="toggleSound" value="Sound: On" onclick="toggleSound()">
         </label>
     </div>
     <div id="info">
@@ -154,12 +176,15 @@
         <div id="upcoming-questions"></div>
     </div>
 
+    <audio id="click-sound" src="res/arcade.wav"></audio>
+
     <script>
         let correctAnswer;
         let score = 0;
         let total = 0;
         let timer;
         let timerStarted = false;
+        let soundEnabled = true;
         const upcomingQuestions = [];
         const cpmHistory = [];
 
@@ -168,26 +193,39 @@
         }
 
         function generateQuestion() {
-            const minRange = parseInt(document.getElementById('minRange').value) || 2;
-            const maxRange = parseInt(document.getElementById('maxRange').value) || 9;
-            const a = getRandomInt(minRange, maxRange);
-            const b = getRandomInt(minRange, maxRange);
             const operations = [];
             if (document.getElementById('addition').checked) operations.push('+');
             if (document.getElementById('subtraction').checked) operations.push('-');
             if (document.getElementById('multiplication').checked) operations.push('*');
             if (document.getElementById('division').checked) operations.push('/');
             const operation = operations[Math.floor(Math.random() * operations.length)];
+
             switch (operation) {
                 case '+':
-                    return { question: `${a} + ${b}`, answer: a + b };
+                    const addMin = parseInt(document.getElementById('addMin').value) || 2;
+                    const addMax = parseInt(document.getElementById('addMax').value) || 9;
+                    const aAdd = getRandomInt(addMin, addMax);
+                    const bAdd = getRandomInt(addMin, addMax);
+                    return { question: `${aAdd} + ${bAdd}`, answer: aAdd + bAdd };
                 case '-':
-                    return { question: `${a} - ${b}`, answer: a - b };
+                    const subMin = parseInt(document.getElementById('subMin').value) || 2;
+                    const subMax = parseInt(document.getElementById('subMax').value) || 9;
+                    const aSub = getRandomInt(subMin, subMax);
+                    const bSub = getRandomInt(subMin, subMax);
+                    return { question: `${aSub} - ${bSub}`, answer: aSub - bSub };
                 case '*':
-                    return { question: `${a} * ${b}`, answer: a * b };
+                    const mulMin = parseInt(document.getElementById('mulMin').value) || 2;
+                    const mulMax = parseInt(document.getElementById('mulMax').value) || 9;
+                    const aMul = getRandomInt(mulMin, mulMax);
+                    const bMul = getRandomInt(mulMin, mulMax);
+                    return { question: `${aMul} * ${bMul}`, answer: aMul * bMul };
                 case '/':
-                    const numerator = a * b; // Ensure the numerator is a multiple of b
-                    return { question: `${numerator} / ${b}`, answer: numerator / b };
+                    const divMin = parseInt(document.getElementById('divMin').value) || 2;
+                    const divMax = parseInt(document.getElementById('divMax').value) || 9;
+                    const aDiv = getRandomInt(divMin, divMax);
+                    const bDiv = getRandomInt(divMin, divMax);
+                    const numerator = aDiv * bDiv; // Ensure the numerator is a multiple of bDiv
+                    return { question: `${numerator} / ${bDiv}`, answer: numerator / bDiv };
             }
         }
 
@@ -205,6 +243,9 @@
         function checkAnswer() {
             const answer = parseInt(document.getElementById('answer').value);
             if (answer === correctAnswer) {
+                if (soundEnabled) {
+                    playClickSound();
+                }
                 score++;
                 total++;
                 upcomingQuestions.shift();
@@ -219,6 +260,17 @@
                     startTimer();
                 }
             }
+        }
+
+        function playClickSound() {
+            const clickSound = document.getElementById('click-sound');
+            clickSound.currentTime = 0;
+            clickSound.play();
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('toggleSound').value = soundEnabled ? 'Sound: On' : 'Sound: Off';
         }
 
         function startTimer() {
@@ -286,4 +338,3 @@
     </script>
 </body>
 </html>
-
