@@ -194,11 +194,6 @@
             <input type="number" id="divMax" value="9">
         </label>
         <label>
-            <input type="checkbox" id="squares">Squares
-            <input type="number" id="squaresMin" value="2">
-            <input type="number" id="squaresMax" value="9">
-        </label>
-        <label>
             <input type="button" id="toggleSound" value="Sound: Off" onclick="toggleSound()">
         </label>
     </div>
@@ -237,7 +232,6 @@
             if (document.getElementById('subtraction').checked) operations.push('-');
             if (document.getElementById('multiplication').checked) operations.push('*');
             if (document.getElementById('division').checked) operations.push('/');
-            if (document.getElementById('squares').checked) operations.push('^2');
             const operation = operations[Math.floor(Math.random() * operations.length)];
 
             switch (operation) {
@@ -266,11 +260,6 @@
                     const bDiv = getRandomInt(divMin, divMax);
                     const numerator = aDiv * bDiv; // Ensure the numerator is a multiple of bDiv
                     return { question: `${numerator} / ${bDiv}`, answer: numerator / bDiv };
-                case '^2':
-                    const squaresMin = parseInt(document.getElementById('squaresMin').value) || 2;
-                    const squaresMax = parseInt(document.getElementById('squaresMax').value) || 9;
-                    const aSquare = getRandomInt(squaresMin, squaresMax);
-                    return { question: `${aSquare}^2`, answer: aSquare * aSquare };
             }
         }
 
