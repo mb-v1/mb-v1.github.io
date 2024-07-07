@@ -16,49 +16,39 @@
             margin: 0;
             overflow: hidden;
         }
-        #controls {
+        #controls, #info {
             position: absolute;
             top: 20px;
-            left: 20px;
+            background: #fff;
             padding: 15px;
             border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             font-size: 16px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
+        }
+        #controls {
+            left: 20px;
+            display: none;
+        }
+        #info {
+            right: 20px;
+            text-align: right;
+            width: 200px;
         }
         #controls label {
-            display: flex;
-            align-items: center;
-            margin-right: 10px;
+            display: block;
+            margin-bottom: 10px;
         }
-        #controls input[type="number"], #controls input[type="button"] {
+        #controls input, #controls select {
             width: 60px;
             padding: 5px;
+            margin-top: 5px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 14px;
+            display: inline-block;
         }
-        #controls input[type=checkbox] {
+        #controls input[type=checkbox], #controls input[type=button] {
             width: auto;
-            margin-right: 5px;
-        }
-        #controls input[type="button"] {
-            width: auto;
-            font-size: 20px;
-        }
-        #info {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            text-align: right;
-            font-size: 16px;
-        }
-        #info .history-row {
-            padding: 5px;
-            text-align: center;
-            font-size: 16px;
         }
         #progress-container {
             position: absolute;
@@ -93,10 +83,10 @@
             font-size: 48px;
             color: #333;
             transition: background-color 0.2s;
-            background-color: #ddd; /* Grey shade before start */
+            background-color: #ddd;
             padding: 20px;
             border-radius: 10px;
-            width: 600px; /* Fixed width for consistency */
+            width: 600px;
             font-family: 'Courier New', monospace;
         }
         #question-area.started {
@@ -113,32 +103,16 @@
             margin-bottom: 20px;
             font-family: 'Courier New', monospace;
         }
-        #answer::-webkit-outer-spin-button,
-        #answer::-webkit-inner-spin-button,
-        #addMin::-webkit-outer-spin-button,
-        #addMin::-webkit-inner-spin-button,
-        #addMax::-webkit-outer-spin-button,
-        #addMax::-webkit-inner-spin-button,
-        #subMin::-webkit-outer-spin-button,
-        #subMin::-webkit-inner-spin-button,
-        #subMax::-webkit-outer-spin-button,
-        #subMax::-webkit-inner-spin-button,
-        #mulMin::-webkit-outer-spin-button,
-        #mulMin::-webkit-inner-spin-button,
-        #mulMax::-webkit-outer-spin-button,
-        #mulMax::-webkit-inner-spin-button,
-        #divMin::-webkit-outer-spin-button,
-        #divMin::-webkit-inner-spin-button,
-        #divMax::-webkit-outer-spin-button,
-        #divMax::-webkit-inner-spin-button {
+        #answer::-webkit-outer-spin-button, #answer::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
-        #answer[type=number], #addMin[type=number], #addMax[type=number], #subMin[type=number], #subMax[type=number], #mulMin[type=number], #mulMax[type=number], #divMin[type=number], #divMax[type=number] {
+        #answer[type=number] {
             -moz-appearance: textfield;
         }
-        #upcoming-questions {
-            margin-top: 0;
+        .question {
+            white-space: pre;
+            letter-spacing: -5px;
         }
         .upcoming-question {
             opacity: 0.6;
@@ -151,26 +125,77 @@
         .upcoming-question:nth-child(3) {
             opacity: 0.2;
         }
-        .question {
-            white-space: pre;
-            letter-spacing: -1px; /* Reduce spacing between characters */
-        }
         .history-row:nth-child(odd) {
             background-color: #f4f4f4;
         }
         .history-row:nth-child(even) {
             background-color: #e0e0e0;
         }
+        .history-row {
+            padding: 5px;
+            text-align: center;
+            font-size: 16px;
+        }
+        #toggle-controls-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
+    <button id="toggle-controls-btn" onclick="toggleControls()">Show Controls</button>
     <div id="controls">
-        <label>* <input type="checkbox" id="multiplication" checked></label>
-        <label>/ <input type="checkbox" id="division"></label>
-        <label>- <input type="checkbox" id="subtraction"></label>
-        <label>+ <input type="checkbox" id="addition" checked></label>
-        <label><input type="number" id="timeSelect" value="60">s</label>
-        <label><input type="button" id="toggleSound" value="🔇" onclick="toggleSound()"></label>
+        <label>Time:
+            <select id="timeSelect">
+                <option value="60">60s</option>
+                <option value="120">120s</option>
+                <option value="unlimited">Unlimited</option>
+            </select>
+        </label>
+        <label>
+            <input type="checkbox" id="addition" checked>Addition
+            <input type="number" id="addMin1" value="2" placeholder="Min 1">
+            <input type="number" id="addMax1" value="9" placeholder="Max 1">
+            <input type="number" id="addMin2" value="2" placeholder="Min 2">
+            <input type="number" id="addMax2" value="9" placeholder="Max 2">
+        </label>
+        <label>
+            <input type="checkbox" id="subtraction">Subtraction
+            <input type="number" id="subMin1" value="2" placeholder="Min 1">
+            <input type="number" id="subMax1" value="9" placeholder="Max 1">
+            <input type="number" id="subMin2" value="2" placeholder="Min 2">
+            <input type="number" id="subMax2" value="9" placeholder="Max 2">
+        </label>
+        <label>
+            <input type="checkbox" id="multiplication" checked>Multiplication
+            <input type="number" id="mulMin1" value="2" placeholder="Min 1">
+            <input type="number" id="mulMax1" value="9" placeholder="Max 1">
+            <input type="number" id="mulMin2" value="2" placeholder="Min 2">
+            <input type="number" id="mulMax2" value="9" placeholder="Max 2">
+        </label>
+        <label>
+            <input type="checkbox" id="division">Division
+            <input type="number" id="divMin1" value="2" placeholder="Min 1">
+            <input type="number" id="divMax1" value="9" placeholder="Max 1">
+            <input type="number" id="divMin2" value="2" placeholder="Min 2">
+            <input type="number" id="divMax2" value="9" placeholder="Max 2">
+        </label>
+        <label>
+            <input type="checkbox" id="squares">Squares
+            <input type="number" id="squaresMin" value="2" placeholder="Min">
+            <input type="number" id="squaresMax" value="9" placeholder="Max">
+        </label>
+        <label>
+            <input type="button" id="toggleSound" value="Sound: Off" onclick="toggleSound()">
+        </label>
     </div>
     <div id="info">
         <div id="cpm-history"></div>
@@ -184,18 +209,10 @@
         <div id="question" class="question"></div>
         <div id="upcoming-questions"></div>
     </div>
-
     <audio id="click-sound" src="res/sound.wav"></audio>
-
     <script>
-        let correctAnswer;
-        let score = 0;
-        let total = 0;
-        let timer;
-        let timerStarted = false;
-        let soundEnabled = false;
-        const upcomingQuestions = [];
-        const cpmHistory = [];
+        let correctAnswer, score = 0, total = 0, timer, timerStarted = false, soundEnabled = false;
+        const upcomingQuestions = [], cpmHistory = [];
 
         function getRandomInt(min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -207,66 +224,36 @@
             if (document.getElementById('subtraction').checked) operations.push('-');
             if (document.getElementById('multiplication').checked) operations.push('*');
             if (document.getElementById('division').checked) operations.push('/');
+            if (document.getElementById('squares').checked) operations.push('^2');
             const operation = operations[Math.floor(Math.random() * operations.length)];
 
+            const generateValues = (id1, id2) => [getRandomInt(parseInt(document.getElementById(id1).value) || 2, parseInt(document.getElementById(id2).value) || 9)];
+            const [a, b] = generateValues('addMin1', 'addMax1').concat(generateValues('addMin2', 'addMax2'));
+            
             switch (operation) {
-                case '+':
-                    const addMin = parseInt(document.getElementById('addMin').value) || 2;
-                    const addMax = parseInt(document.getElementById('addMax').value) || 9;
-                    const aAdd = getRandomInt(addMin, addMax);
-                    const bAdd = getRandomInt(addMin, addMax);
-                    return { question: `${aAdd} + ${bAdd}`, answer: aAdd + bAdd };
-                case '-':
-                    const subMin = parseInt(document.getElementById('subMin').value) || 2;
-                    const subMax = parseInt(document.getElementById('subMax').value) || 9;
-                    const aSub = getRandomInt(subMin, subMax);
-                    const bSub = getRandomInt(subMin, subMax);
-                    return { question: `${aSub} - ${bSub}`, answer: aSub - bSub };
-                case '*':
-                    const mulMin = parseInt(document.getElementById('mulMin').value) || 2;
-                    const mulMax = parseInt(document.getElementById('mulMax').value) || 9;
-                    const aMul = getRandomInt(mulMin, mulMax);
-                    const bMul = getRandomInt(mulMin, mulMax);
-                    return { question: `${aMul} * ${bMul}`, answer: aMul * bMul };
-                case '/':
-                    const divMin = parseInt(document.getElementById('divMin').value) || 2;
-                    const divMax = parseInt(document.getElementById('divMax').value) || 9;
-                    const aDiv = getRandomInt(divMin, divMax);
-                    const bDiv = getRandomInt(divMin, divMax);
-                    const numerator = aDiv * bDiv; // Ensure the numerator is a multiple of bDiv
-                    return { question: `${numerator} / ${bDiv}`, answer: numerator / bDiv };
+                case '+': return { question: `${a} + ${b}`, answer: a + b };
+                case '-': return { question: `${a} - ${b}`, answer: a - b };
+                case '*': return { question: `${a} * ${b}`, answer: a * b };
+                case '/': return { question: `${a * b} / ${b}`, answer: a };
+                case '^2': return { question: `${a}^2`, answer: a * a };
             }
         }
 
         function updateUpcomingQuestions() {
-            const upcomingQuestionsDiv = document.getElementById('upcoming-questions');
-            upcomingQuestionsDiv.innerHTML = '';
-            for (let i = 1; i < upcomingQuestions.length; i++) {
-                const questionDiv = document.createElement('div');
-                questionDiv.className = 'upcoming-question question';
-                questionDiv.innerText = upcomingQuestions[i].question;
-                upcomingQuestionsDiv.appendChild(questionDiv);
-            }
+            document.getElementById('upcoming-questions').innerHTML = upcomingQuestions.slice(1).map(q => `<div class="upcoming-question question">${q.question}</div>`).join('');
         }
 
         function checkAnswer() {
-            const answer = parseInt(document.getElementById('answer').value);
-            if (answer === correctAnswer) {
-                if (soundEnabled) {
-                    playClickSound();
-                }
-                score++;
-                total++;
+            if (parseInt(document.getElementById('answer').value) === correctAnswer) {
+                if (soundEnabled) playClickSound();
+                score++; total++;
                 upcomingQuestions.shift();
-                const nextQuestion = generateQuestion();
-                upcomingQuestions.push(nextQuestion);
+                upcomingQuestions.push(generateQuestion());
                 correctAnswer = upcomingQuestions[0].answer;
                 document.getElementById('question').innerText = upcomingQuestions[0].question;
                 document.getElementById('answer').value = '';
                 updateUpcomingQuestions();
-                if (!timerStarted) {
-                    startTimer();
-                }
+                if (!timerStarted) startTimer();
             }
         }
 
@@ -278,63 +265,42 @@
 
         function toggleSound() {
             soundEnabled = !soundEnabled;
-            document.getElementById('toggleSound').value = soundEnabled ? '🔊' : '🔇';
+            document.getElementById('toggleSound').value = soundEnabled ? 'Sound: On' : 'Sound: Off';
         }
 
         function startTimer() {
             timerStarted = true;
-            score = 0;
-            total = 0;
-            const timeLimit = parseInt(document.getElementById('timeSelect').value);
+            score = 0; total = 0;
+            const timeLimit = document.getElementById('timeSelect').value;
             document.getElementById('cpm-display').innerText = `CPM: 0`;
             document.getElementById('question-area').classList.add('started');
+            document.getElementById('progress-bar').style.width = '100%';
 
-            const progressBar = document.getElementById('progress-bar');
-            progressBar.style.width = '100%';
+            if (timeLimit === 'unlimited') return;
 
-            const interval = timeLimit * 1000; // Total time in milliseconds
-            const decrement = 100 / timeLimit; // Percentage decrement per second
-
+            const interval = timeLimit * 1000, decrement = 100 / timeLimit;
             timer = setInterval(() => {
                 const currentTime = parseInt(document.querySelector('#progress-bar').style.width.replace('%', ''));
                 if (currentTime > 0) {
-                    progressBar.style.width = `${currentTime - decrement}%`;
+                    document.getElementById('progress-bar').style.width = `${currentTime - decrement}%`;
                     let cpm = Math.floor((score / (timeLimit - (currentTime / decrement))) * 60);
-                    if (isNaN(cpm) || !isFinite(cpm)) {
-                        cpm = 0;
-                    }
-                    document.getElementById('cpm-display').innerText = `CPM: ${cpm}`;
+                    document.getElementById('cpm-display').innerText = `CPM: ${isNaN(cpm) || !isFinite(cpm) ? 0 : cpm}`;
                 } else {
                     clearInterval(timer);
-                    let cpm = Math.floor((score / timeLimit) * 60);
-                    if (isNaN(cpm) || !isFinite(cpm)) {
-                        cpm = 0;
-                    }
-                    cpmHistory.push(cpm);
+                    const cpm = Math.floor((score / timeLimit) * 60);
+                    cpmHistory.push(isNaN(cpm) || !isFinite(cpm) ? 0 : cpm);
                     updateCpmHistory();
-                    setTimeout(() => {
-                        initializePractice();
-                    }, 500); // Pause for 0.5 seconds before restarting
+                    setTimeout(initializePractice, 500);
                 }
             }, 1000);
         }
 
         function updateCpmHistory() {
-            const cpmHistoryDiv = document.getElementById('cpm-history');
-            cpmHistoryDiv.innerHTML = '';
-            cpmHistory.forEach(cpm => {
-                const cpmItem = document.createElement('div');
-                cpmItem.className = 'history-row';
-                cpmItem.innerText = cpm;
-                cpmHistoryDiv.appendChild(cpmItem);
-            });
+            document.getElementById('cpm-history').innerHTML = cpmHistory.map(cpm => `<div class="history-row">${cpm}</div>`).join('');
         }
 
         function restartOnEnter(event) {
-            if (event.key === "Enter") {
-                initializePractice();
-                document.getElementById('answer').focus();
-            }
+            if (event.key === "Enter") initializePractice();
         }
 
         function initializePractice() {
@@ -345,21 +311,39 @@
             document.getElementById('cpm-display').innerText = `CPM: 0`;
             upcomingQuestions.length = 0;
             document.getElementById('progress-bar').style.width = '100%';
-            for (let i = 0; i < 4; i++) {
-                const nextQuestion = generateQuestion();
-                upcomingQuestions.push(nextQuestion);
-            }
+            for (let i = 0; i < 4; i++) upcomingQuestions.push(generateQuestion());
             correctAnswer = upcomingQuestions[0].answer;
             document.getElementById('question').innerText = upcomingQuestions[0].question;
             updateUpcomingQuestions();
-            document.getElementById('answer').focus();
         }
 
-        document.addEventListener('DOMContentLoaded', (event) => {
-            initializePractice();
-            document.getElementById('answer').focus();
+        function toggleControls() {
+            const controls = document.getElementById('controls');
+            const toggleBtn = document.getElementById('toggle-controls-btn');
+            if (controls.style.display === 'none') {
+                controls.style.display = 'block';
+                toggleBtn.innerText = 'Hide Controls';
+            } else {
+                controls.style.display = 'none';
+                toggleBtn.innerText = 'Show Controls';
+            }
+        }
+
+        function hideControls() {
+            const controls = document.getElementById('controls');
+            controls.style.display = 'none';
+            document.getElementById('toggle-controls-btn').innerText = 'Show Controls';
+        }
+
+        document.addEventListener('click', function(event) {
+            const controls = document.getElementById('controls');
+            const toggleBtn = document.getElementById('toggle-controls-btn');
+            if (!controls.contains(event.target) && event.target !== toggleBtn) {
+                hideControls();
+            }
         });
+
+        document.addEventListener('DOMContentLoaded', initializePractice);
     </script>
 </body>
 </html>
-
