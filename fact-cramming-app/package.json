@@ -46,7 +46,7 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "https://mb-v1.github.io/fact_cramming_app",
+  "homepage": "https://mb-v1.github.io/fact-cramming-app",
   "devDependencies": {
     "gh-pages": "^6.2.0"
   }

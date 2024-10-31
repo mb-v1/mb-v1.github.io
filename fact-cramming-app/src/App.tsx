@@ -289,7 +289,7 @@ function App() {
 
   const getPublicPath = (path: string) => {
     // This helps resolve paths correctly when deployed to GitHub Pages
-    const publicUrl = process.env.PUBLIC_URL || '';
+    const publicUrl = process.env.PUBLIC_URL || '/fact-cramming-app';
     return `${publicUrl}${path}`;
   };
 
